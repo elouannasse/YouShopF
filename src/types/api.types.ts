@@ -49,8 +49,8 @@ export interface RegisterData {
 
 export interface AuthResponse {
   success?: boolean;
-  accessToken: string;  // Backend returns accessToken
-  token?: string;       // Deprecated, for backward compatibility
+  accessToken: string; // Backend returns accessToken
+  token?: string; // Deprecated, for backward compatibility
   user: User;
   message?: string;
 }
@@ -102,6 +102,9 @@ export interface ProductFilters {
   featured?: boolean;
   search?: string;
   sort?: "newest" | "price-asc" | "price-desc" | "popular" | "rating";
+  page?: number;
+  limit?: number;
+  isActive?: boolean;
 }
 
 export interface ProductsResponse {

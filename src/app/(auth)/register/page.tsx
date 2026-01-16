@@ -57,12 +57,12 @@ export default function RegisterPage() {
       // Remove confirmPassword before sending to backend
       const { confirmPassword, ...registerData } = data;
 
-      // Remove empty optional fields
-      const cleanedData = {
+      // Ensure firstName and lastName are strings or omitted
+      const cleanedData: any = {
         email: registerData.email,
         password: registerData.password,
-        ...(registerData.firstName && { firstName: registerData.firstName }),
-        ...(registerData.lastName && { lastName: registerData.lastName }),
+        firstName: registerData.firstName || "",
+        lastName: registerData.lastName || "",
       };
 
       console.log("[Register Page] Cleaned data:", cleanedData);
@@ -156,7 +156,8 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Confirmer le mot de passe <span className="text-red-500">*</span>
+                      Confirmer le mot de passe{" "}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -211,7 +212,9 @@ export default function RegisterPage() {
                 className="w-full"
                 disabled={isSubmitting || isLoading}
               >
-                {isSubmitting || isLoading ? "Création en cours..." : "Créer mon compte"}
+                {isSubmitting || isLoading
+                  ? "Création en cours..."
+                  : "Créer mon compte"}
               </Button>
             </form>
           </Form>

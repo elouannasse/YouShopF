@@ -9,7 +9,9 @@
 
 export interface User {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name?: string; // Deprecated, kept for backward compatibility
   email: string;
   role: "user" | "admin";
   avatar?: string;
@@ -38,15 +40,17 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword?: string;
 }
 
 export interface AuthResponse {
-  success: boolean;
-  token: string;
+  success?: boolean;
+  accessToken: string;  // Backend returns accessToken
+  token?: string;       // Deprecated, for backward compatibility
   user: User;
   message?: string;
 }

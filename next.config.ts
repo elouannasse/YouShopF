@@ -28,6 +28,17 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+
+  // Proxy API calls to backend server
+  // Frontend: /api/auth/login → Backend: /auth/login (remove /api prefix)
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:3001/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

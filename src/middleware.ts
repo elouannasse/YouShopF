@@ -3,19 +3,22 @@ import type { NextRequest } from "next/server";
 
 /**
  * Middleware for route protection
- * Protects admin and authenticated routes
+ * Protects admin, checkout, profile, and orders routes
+ * Redirects to login with redirect query param
  */
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get token from cookie or check for auth
+  // Get token from cookie
   const token = request.cookies.get("authToken")?.value;
   const isAuthenticated = !!token;
 
-  // Define protected routes
+  // Define route patterns
   const isAdminRoute = pathname.startsWith("/admin");
-  const isAuthRoute = pathname.startsWith("/(auth)");
+  const isCheckoutRoute = pathname.startsWith("/checkout");
+  const isProfileRoute = pathname.startsWith("/profile");
+  const isOrdersRoute = pathname.startsWith("/orders");
   const isPublicAuthRoute =
     pathname.startsWith("/login") || pathname.startsWith("/register");
 
@@ -24,25 +27,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Redirect unauthenticated users from protected routes
-  if (!isAuthenticated && isAuthRoute && !isPublicAuthRoute) {
+  // Protected routes that require authentication
+  const requiresAuth =
+    isAdminRoute || isCheckoutRoute || isProfileRoute || isOrdersRoute;
+
+  // Redirect unauthenticated users from protected routes with redirect param
+  if (!isAuthenticated && requiresAuth) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin route protection
-  if (isAdminRoute) {
-    // If not authenticated, redirect to login
-    if (!isAuthenticated) {
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // Note: Additional role check should be done in the server component
-    // as middleware cannot access user role from token without verification
-  }
+  // Note: Admin role check should be done in server components
+  // Middleware cannot decode JWT to check user role
 
   return NextResponse.next();
 }

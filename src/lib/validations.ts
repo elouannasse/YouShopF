@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { VALIDATION } from "./constants";
 
-
-
 export const loginSchema = z.object({
   email: z.string().min(1, "L'email est requis").email("Email invalide"),
   password: z
@@ -15,24 +13,26 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
-    name: z
-      .string()
-      .min(
-        VALIDATION.NAME_MIN_LENGTH,
-        `Le nom doit contenir au moins ${VALIDATION.NAME_MIN_LENGTH} caractères`
-      )
-      .max(
-        VALIDATION.NAME_MAX_LENGTH,
-        `Le nom ne peut pas dépasser ${VALIDATION.NAME_MAX_LENGTH} caractères`
-      ),
     email: z.string().min(1, "L'email est requis").email("Email invalide"),
     password: z
       .string()
-      .min(
-        VALIDATION.PASSWORD_MIN_LENGTH,
-        `Le mot de passe doit contenir au moins ${VALIDATION.PASSWORD_MIN_LENGTH} caractères`
-      ),
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
+      .regex(/[a-z]/, "Le mot de passe doit contenir au moins une minuscule")
+      .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre"),
     confirmPassword: z.string().min(1, "Veuillez confirmer le mot de passe"),
+    firstName: z
+      .string()
+      .min(2, "Le prénom doit contenir au moins 2 caractères")
+      .max(50, "Le prénom ne peut pas dépasser 50 caractères")
+      .optional()
+      .or(z.literal("")),
+    lastName: z
+      .string()
+      .min(2, "Le nom doit contenir au moins 2 caractères")
+      .max(50, "Le nom ne peut pas dépasser 50 caractères")
+      .optional()
+      .or(z.literal("")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Les mots de passe ne correspondent pas",

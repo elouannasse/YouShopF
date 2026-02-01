@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { loginSchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +34,31 @@ type LoginFormData = z.infer<typeof loginSchema>;
  * Login page with react-hook-form + Zod validation
  */
 export default function LoginPage() {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, user } = useAuth();
+  const router = useRouter();
+  const [hasRedirected, setHasRedirected] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !hasRedirected) {
+      console.log("[Login] User detected, redirecting...", user);
+      setHasRedirected(true);
+      
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
+      
+      if (redirectUrl) {
+        console.log("[Login] Redirecting to:", redirectUrl);
+        router.replace(redirectUrl);
+      } else if (user.role?.toLowerCase() === "admin") {
+        console.log("[Login] Redirecting admin to /admin");
+        router.replace("/admin");
+      } else {
+        console.log("[Login] Redirecting user to /");
+        router.replace("/");
+      }
+    }
+  }, [user, hasRedirected, router]);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -43,12 +69,33 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    const result = await login(data);
+    try {
+      const result = await login(data);
 
-    if (result.success) {
-      toast.success("Connexion réussie !");
-    } else {
-      toast.error(result.error || "Une erreur est survenue");
+      if (result.success && result.user) {
+        toast.success("Connexion réussie !");
+        
+        // Get redirect URL from query params
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
+        
+        // Redirect immediately based on user role
+        if (redirectUrl) {
+          console.log("[Login] Redirecting to:", redirectUrl);
+          router.replace(redirectUrl);
+        } else if (result.user.role?.toLowerCase() === "admin") {
+          console.log("[Login] Redirecting admin to /admin");
+          router.replace("/admin");
+        } else {
+          console.log("[Login] Redirecting user to /");
+          router.replace("/");
+        }
+      } else {
+        toast.error(result.error || "Une erreur est survenue");
+      }
+    } catch (error) {
+      console.error("[Login] Submit error:", error);
+      toast.error("Une erreur est survenue");
     }
   };
 

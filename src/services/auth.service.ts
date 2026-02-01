@@ -34,7 +34,11 @@ export const authService = {
         if (typeof window !== "undefined") {
           localStorage.setItem(TOKEN_KEY, accessToken);
           localStorage.setItem(USER_KEY, JSON.stringify(user));
-          console.log("[Auth Service] Token and user saved to localStorage");
+          
+          // Set cookie for middleware
+          document.cookie = `authToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          
+          console.log("[Auth Service] Token and user saved to localStorage and cookie");
         }
       }
 
@@ -62,7 +66,11 @@ export const authService = {
         if (typeof window !== "undefined") {
           localStorage.setItem(TOKEN_KEY, accessToken);
           localStorage.setItem(USER_KEY, JSON.stringify(user));
-          console.log("[Auth Service] Token and user saved to localStorage");
+          
+          // Set cookie for middleware
+          document.cookie = `authToken=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          
+          console.log("[Auth Service] Token and user saved to localStorage and cookie");
         }
       }
 
@@ -258,7 +266,7 @@ export const authService = {
   },
 
   /**
-   * Clear all auth data from localStorage
+   * Clear all auth data from localStorage and cookies
    */
   clearAuth(): void {
     if (typeof window === "undefined") return;
@@ -267,5 +275,8 @@ export const authService = {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem("auth-storage"); // Clear Zustand store
+    
+    // Clear cookie by setting it with expired date
+    document.cookie = "authToken=; path=/; max-age=0; SameSite=Lax";
   },
 };

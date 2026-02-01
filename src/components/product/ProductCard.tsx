@@ -24,6 +24,9 @@ interface ProductCardProps {
 export const ProductCard = React.memo(
   ({ product, priority = false }: ProductCardProps) => {
     const { addItem } = useCart();
+    const [imgSrc, setImgSrc] = React.useState(
+      product.imageUrl || product.images?.[0] || "/placeholder-product.svg"
+    );
     const isOutOfStock = product.stock === 0;
     const hasDiscount =
       product.compareAtPrice && product.compareAtPrice > product.price;
@@ -45,17 +48,18 @@ export const ProductCard = React.memo(
       typeof product.category === "object" ? product.category.name : undefined;
 
     return (
-      <Link href={`/products/${product._id}`}>
+      <Link href={`/products/${product.id}`}>
         <Card className="group h-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-lg">
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             {/* Product Image */}
             <Image
-              src={product.images[0] || "/placeholder-product.jpg"}
+              src={imgSrc}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover transition-transform duration-300 group-hover:scale-110"
               priority={priority}
+              onError={() => setImgSrc("/placeholder-product.svg")}
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AoNLy8T7Xu0r1dXHVx3L0YL5cZ4qRmF3VZEQV3iiKMR/M//Z"
             />

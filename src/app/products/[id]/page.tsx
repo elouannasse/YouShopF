@@ -47,7 +47,7 @@ export default function ProductDetailPage() {
   // Fetch similar products (same category)
   const categoryId =
     typeof product?.category === "object"
-      ? product.category._id
+      ? product.category.id
       : product?.category;
   const { data: similarProducts = [] } = useQuery<Product[]>({
     queryKey: ["similar-products", productId, categoryId],
@@ -58,7 +58,7 @@ export default function ProductDetailPage() {
         limit: 5,
       });
       // Filter out current product
-      return response.products.filter((p) => p._id !== productId).slice(0, 4);
+      return response.products.filter((p) => p.id !== productId).slice(0, 4);
     },
     enabled: !!categoryId,
   });
@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
               <Link
                 href={`/products?categoryId=${
                   typeof product.category === "object"
-                    ? product.category._id
+                    ? product.category.id
                     : product.category
                 }`}
                 className="hover:text-primary transition-colors"
@@ -258,7 +258,7 @@ export default function ProductDetailPage() {
                 <Link
                   href={`/products?categoryId=${
                     typeof product.category === "object"
-                      ? product.category._id
+                      ? product.category.id
                       : product.category
                   }`}
                   className="text-sm text-primary hover:underline uppercase tracking-wide"
@@ -421,7 +421,7 @@ export default function ProductDetailPage() {
                   <Link
                     href={`/products?categoryId=${
                       typeof product.category === "object"
-                        ? product.category._id
+                        ? product.category.id
                         : product.category
                     }`}
                   >

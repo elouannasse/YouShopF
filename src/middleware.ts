@@ -22,8 +22,8 @@ export function middleware(request: NextRequest) {
   const isPublicAuthRoute =
     pathname.startsWith("/login") || pathname.startsWith("/register");
 
-  // Redirect authenticated users away from login/register
-  if (isAuthenticated && isPublicAuthRoute) {
+  // Redirect authenticated users away from register only
+  if (isAuthenticated && pathname.startsWith("/register")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

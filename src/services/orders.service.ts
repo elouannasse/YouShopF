@@ -4,6 +4,7 @@ import type {
   OrdersResponse,
   OrderResponse,
   CreateOrderData,
+  CalculateOrderData,
   ApiResponse,
   PaginationParams,
 } from "@/types/api.types";
@@ -47,6 +48,23 @@ export const ordersService = {
    */
   async createOrder(data: CreateOrderData): Promise<Order> {
     const response = await api.post<OrderResponse>("/orders", data);
+    return response.data.order;
+  },
+
+  /**
+   * Calculate order summary WITHOUT creating order
+   * Used in checkout to verify stock and get totals
+   */
+  async calculateOrderSummary(data: CalculateOrderData): Promise<Order> {
+    const response = await api.post<OrderResponse>("/orders/calculate", data);
+    return response.data.order;
+  },
+
+  /**
+   * Pay an order
+   */
+  async payOrder(id: string): Promise<Order> {
+    const response = await api.patch<OrderResponse>(`/orders/${id}/pay`);
     return response.data.order;
   },
 

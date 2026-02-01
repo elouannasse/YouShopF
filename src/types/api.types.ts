@@ -13,7 +13,7 @@ export interface User {
   lastName: string;
   name?: string; // Deprecated, kept for backward compatibility
   email: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "ADMIN" | "CLIENT"; // Support both cases
   avatar?: string;
   phone?: string;
   addresses?: Address[];
@@ -60,15 +60,17 @@ export interface AuthResponse {
 // ============================================
 
 export interface Product {
-  _id: string;
+  id: string; // NestJS uses 'id', not '_id'
   name: string;
-  description: string;
+  description?: string;
   shortDescription?: string;
   price: number;
   compareAtPrice?: number;
   discount?: number;
-  images: string[];
-  category: Category | string;
+  imageUrl?: string; // NestJS uses single imageUrl
+  images?: string[]; // Optional array for multiple images
+  category?: Category | string;
+  categoryId?: string;
   brand?: string;
   stock: number;
   sku?: string;
@@ -81,8 +83,8 @@ export interface Product {
   soldCount?: number;
   slug?: string;
   isActive?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductVariant {
@@ -123,9 +125,10 @@ export interface ProductsResponse {
 // ============================================
 
 export interface Category {
-  _id: string;
+  id?: string; // NestJS uses 'id'
+  _id?: string; // MongoDB uses '_id' - support both for compatibility
   name: string;
-  slug: string;
+  slug?: string;
   description?: string;
   image?: string;
   parent?: Category | string | null;
@@ -133,8 +136,8 @@ export interface Category {
   productsCount?: number;
   isActive?: boolean;
   order?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CategoriesResponse {
@@ -196,6 +199,8 @@ export interface UpdateCartItemData {
 // ORDER TYPES
 // ============================================
 
+export type OrderStatus = "PENDING" | "PAID" | "CANCELLED" | "EXPIRED";
+
 export interface Order {
   _id: string;
   orderNumber: string;
@@ -212,6 +217,8 @@ export interface Order {
     | "shipped"
     | "delivered"
     | "cancelled";
+  status: OrderStatus; // Simplified status for frontend
+  expiresAt: string; // When PENDING order expires (30 min after creation)
   subtotal: number;
   tax: number;
   shippingCost: number;
@@ -256,6 +263,14 @@ export interface CreateOrderData {
   billingAddress?: Address;
   paymentMethod: "card" | "paypal" | "bank_transfer";
   notes?: string;
+}
+
+export interface CalculateOrderData {
+  items: Array<{
+    productId: string;
+    quantity: number;
+    price: number;
+  }>;
 }
 
 export interface OrdersResponse {

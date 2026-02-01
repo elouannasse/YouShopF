@@ -35,6 +35,12 @@ export const useAuth = () => {
       
       if (storedToken && storedUser && !user) {
         console.log("[useAuth] Found stored auth, restoring...");
+        
+        // Set cookie for middleware (in case it was cleared)
+        if (typeof window !== "undefined") {
+          document.cookie = `authToken=${storedToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        }
+        
         login(storedUser, storedToken);
       } else if (token && !user) {
         // If we have token in Zustand but no user, fetch profile
@@ -74,15 +80,8 @@ export const useAuth = () => {
         console.log("[useAuth] Login successful, updating Zustand store");
         login(user, accessToken);
 
-        // Redirect based on role
-        if (user.role === "admin") {
-          console.log("[useAuth] Redirecting to /admin");
-          router.push("/admin");
-        } else {
-          console.log("[useAuth] Redirecting to /");
-          router.push("/");
-        }
-        return { success: true };
+        // Return user so calling component can redirect immediately
+        return { success: true, user };
       } else {
         throw new Error(response.message || "Login failed");
       }
@@ -150,7 +149,7 @@ export const useAuth = () => {
   /**
    * Check if user is admin
    */
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   /**
    * Check if user is logged in

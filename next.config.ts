@@ -21,6 +21,26 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.youshop.com",
+        pathname: "/products/**",
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "example.com",
+        pathname: "/**",
+      },
     ],
   },
 
@@ -30,7 +50,7 @@ const nextConfig: NextConfig = {
   },
 
   // Proxy API calls to backend server
-  // Frontend: /api/auth/login → Backend: /auth/login (remove /api prefix)
+  // Frontend: /api/auth/login → Backend: http://localhost:3001/auth/login
   async rewrites() {
     return [
       {

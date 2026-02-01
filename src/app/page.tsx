@@ -25,13 +25,13 @@ export default function HomePage() {
   });
 
   // Fetch categories
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<
-    Category[]
-  >({
+  const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: categoriesService.getCategories,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  const categories = categoriesResponse?.categories || [];
 
   // Get top 6 categories for display
   const topCategories = categories.slice(0, 6);

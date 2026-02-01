@@ -14,9 +14,43 @@ export const categoriesService = {
   /**
    * Get all categories
    */
-  async getCategories(): Promise<Category[]> {
-    const response = await api.get<CategoriesResponse>("/categories");
-    return response.data.categories;
+  async getCategories(): Promise<CategoriesResponse> {
+    try {
+      const response = await api.get<any>("/categories");
+      console.log("[Categories Service] Raw response:", response.data);
+      
+      // Handle different response formats
+      let categories: Category[] = [];
+      
+      if (response.data) {
+        // Format 1: NestJS paginated response { data: [...], total, page, limit }
+        if (response.data.data && Array.isArray(response.data.data)) {
+          categories = response.data.data;
+        }
+        // Format 2: Direct array response
+        else if (Array.isArray(response.data)) {
+          categories = response.data;
+        }
+        // Format 3: Already formatted response { success: true, categories: [...] }
+        else if (response.data.categories && Array.isArray(response.data.categories)) {
+          categories = response.data.categories;
+        }
+        // Format 4: Single category object wrapped
+        else if (response.data.success && response.data.data) {
+          categories = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
+        }
+      }
+      
+      console.log("[Categories Service] Processed categories:", categories.length, categories);
+      
+      return {
+        success: true,
+        categories: categories,
+      };
+    } catch (error) {
+      console.error("[Categories Service] Error fetching categories:", error);
+      throw error;
+    }
   },
 
   /**
@@ -67,11 +101,17 @@ export const categoriesService = {
    * Update category (Admin only)
    */
   async updateCategory(id: string, data: Partial<Category>): Promise<Category> {
-    const response = await api.put<ApiResponse<Category>>(
-      `/categories/${id}`,
-      data
-    );
-    return response.data.data!;
+    console.log("[Categories Service] Updating category:", id, data);
+    try {
+      const response = await api.patch<ApiResponse<Category>>(
+        `/categories/${id}`,
+        data
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error("[Categories Service] Update error:", error);
+      throw error;
+    }
   },
 
   /**

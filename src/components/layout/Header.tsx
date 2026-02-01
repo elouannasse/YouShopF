@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,26 +12,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  ShoppingCart,
-  User,
-  Package,
-  LogOut,
-  Shield,
-  ShoppingBag,
-} from "lucide-react";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { User, Package, LogOut, Shield, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 /**
- * Header component with navigation, user menu and cart badge
+ * Header component with navigation, user menu and cart drawer
  */
 export const Header = () => {
   const { user, isLoggedIn, isAdmin, logout } = useAuth();
-  const { items } = useCart();
   const router = useRouter();
 
-  const cartItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  // Debug log
+  console.log("[Header] User:", user?.email, "Role:", user?.role, "isAdmin:", isAdmin);
 
   const handleLogout = async () => {
     await logout();
@@ -82,22 +74,7 @@ export const Header = () => {
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
           {/* Cart */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            onClick={() => router.push("/cart")}
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {cartItemsCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-              >
-                {cartItemsCount}
-              </Badge>
-            )}
-          </Button>
+          <CartDrawer />
 
           {/* User menu or login button */}
           {isLoggedIn && user ? (
@@ -150,9 +127,12 @@ export const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild>
-              <Link href="/login">Connexion</Link>
-            </Button>
+            <Link 
+              href="/login"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              Connexion
+            </Link>
           )}
         </div>
       </div>

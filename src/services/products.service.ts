@@ -24,8 +24,20 @@ export const productsService = {
       ...filters,
       ...pagination,
     };
-    const response = await api.get<ProductsResponse>("/products", { params });
-    return response.data;
+    const response = await api.get<any>("/products", { params });
+    
+    // NestJS returns { data: [], total, page, limit }
+    // Transform to frontend format
+    return {
+      success: true,
+      products: response.data.data || [],
+      pagination: {
+        page: response.data.page || 1,
+        limit: response.data.limit || 12,
+        total: response.data.total || 0,
+        pages: Math.ceil((response.data.total || 0) / (response.data.limit || 12)),
+      },
+    };
   },
 
   /**
@@ -51,20 +63,31 @@ export const productsService = {
     query: string,
     pagination?: PaginationParams
   ): Promise<ProductsResponse> {
-    const response = await api.get<ProductsResponse>("/products/search", {
+    const response = await api.get<any>("/products/search", {
       params: { q: query, ...pagination },
     });
-    return response.data;
+    
+    // Transform NestJS response
+    return {
+      success: true,
+      products: response.data.data || [],
+      pagination: {
+        page: response.data.page || 1,
+        limit: response.data.limit || 12,
+        total: response.data.total || 0,
+        pages: Math.ceil((response.data.total || 0) / (response.data.limit || 12)),
+      },
+    };
   },
 
   /**
    * Get featured products
    */
   async getFeaturedProducts(limit?: number): Promise<Product[]> {
-    const response = await api.get<ApiResponse<Product[]>>("/products/featured", {
+    const response = await api.get<any>("/products/featured", {
       params: { limit },
     });
-    return response.data.data!;
+    return response.data.data || [];
   },
 
   /**
@@ -74,22 +97,33 @@ export const productsService = {
     categoryId: string,
     pagination?: PaginationParams
   ): Promise<ProductsResponse> {
-    const response = await api.get<ProductsResponse>(
+    const response = await api.get<any>(
       `/products/category/${categoryId}`,
       { params: pagination }
     );
-    return response.data;
+    
+    // Transform NestJS response
+    return {
+      success: true,
+      products: response.data.data || [],
+      pagination: {
+        page: response.data.page || 1,
+        limit: response.data.limit || 12,
+        total: response.data.total || 0,
+        pages: Math.ceil((response.data.total || 0) / (response.data.limit || 12)),
+      },
+    };
   },
 
   /**
    * Get related products
    */
   async getRelatedProducts(productId: string, limit?: number): Promise<Product[]> {
-    const response = await api.get<ApiResponse<Product[]>>(
+    const response = await api.get<any>(
       `/products/${productId}/related`,
       { params: { limit } }
     );
-    return response.data.data!;
+    return response.data.data || [];
   },
 
   /**

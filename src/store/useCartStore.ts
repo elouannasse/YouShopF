@@ -22,6 +22,8 @@ interface CartActions {
   closeCart: () => void;
   toggleCart: () => void;
   calculateTotals: () => void;
+  getTotalItems: () => number;
+  getOrderItems: () => { productId: string; quantity: number; price: number }[];
 }
 
 type CartStore = CartState & CartActions;
@@ -153,6 +155,21 @@ export const useCartStore = create<CartStore>()(
           shippingCost: Number(shippingCost.toFixed(2)),
           total: Number(total.toFixed(2)),
         });
+      },
+
+      getTotalItems: () => {
+        const items = get().items;
+        return items.reduce((sum, item) => sum + item.quantity, 0);
+      },
+
+      getOrderItems: () => {
+        const items = get().items;
+        return items.map((item) => ({
+          productId:
+            typeof item.product === "string" ? item.product : item.product._id,
+          quantity: item.quantity,
+          price: item.price || 0,
+        }));
       },
     }),
     {

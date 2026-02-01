@@ -60,13 +60,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   ]);
 
   // Fetch categories with React Query (cache 5 minutes)
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<
-    Category[]
-  >({
+  const { data: categoriesResponse, isLoading: categoriesLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: categoriesService.getCategories,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  const categories = categoriesResponse?.categories || [];
 
   // Update price range when filters change
   useEffect(() => {
